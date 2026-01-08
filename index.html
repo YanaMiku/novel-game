@@ -1,1 +1,1452 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sakura Academy Chronicles - Visual Novel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a2e;
+            color: #f0f0f0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        /* Start Screen Styles */
+        #start-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9)), 
+                        url('https://raw.githubusercontent.com/YanaMiku/novel-game/main/img/background-school.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .game-title {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b9d, #c779d0, #4bc0c8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+        }
+        
+        .game-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            color: #aaa;
+            text-align: center;
+        }
+        
+        .name-input-container {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #ff6b9d;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 107, 157, 0.3);
+        }
+        
+        .name-input-container h2 {
+            margin-bottom: 20px;
+            color: #fff;
+            font-size: 1.8rem;
+        }
+        
+        .name-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            border: 2px solid #4bc0c8;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        
+        .name-input:focus {
+            border-color: #ff6b9d;
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+        }
+        
+        .start-btn {
+            background: linear-gradient(45deg, #ff6b9d, #c779d0);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(255, 107, 157, 0.5);
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 107, 157, 0.8);
+        }
+        
+        /* Game Screen Styles */
+        #game-screen {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .background {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background-size: cover;
+            background-position: center;
+            transition: opacity 0.5s ease;
+            opacity: 0;
+        }
+        
+        .background.active {
+            opacity: 1;
+        }
+        
+        .characters-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        
+        .character {
+            height: 90%;
+            position: absolute;
+            bottom: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .character.active {
+            opacity: 1;
+        }
+        
+        .character.left {
+            left: 5%;
+            transform: translateX(-20px);
+        }
+        
+        .character.center-left {
+            left: 20%;
+            transform: translateX(-10px);
+        }
+        
+        .character.center {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .character.center-right {
+            right: 20%;
+            transform: translateX(10px);
+        }
+        
+        .character.right {
+            right: 5%;
+            transform: translateX(20px);
+        }
+        
+        .dialog-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            border-top: 3px solid #ff6b9d;
+            padding: 20px;
+            min-height: 30%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 10;
+        }
+        
+        .speaker-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #ff6b9d;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #4bc0c8;
+            display: inline-block;
+        }
+        
+        .dialog-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            height: 100px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .dialog-text::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .dialog-text::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .dialog-text::-webkit-scrollbar-thumb {
+            background: #ff6b9d;
+            border-radius: 4px;
+        }
+        
+        /* Controls */
+        .controls-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .main-controls {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .control-btn {
+            background-color: rgba(255, 107, 157, 0.2);
+            border: 2px solid #ff6b9d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background-color: rgba(255, 107, 157, 0.4);
+            transform: translateY(-3px);
+        }
+        
+        .save-load-menu {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .menu-btn {
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 2px solid #4bc0c8;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-btn:hover {
+            background-color: rgba(75, 192, 200, 0.3);
+            transform: scale(1.1);
+        }
+        
+        /* Menu Modals */
+        .modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(145deg, #2a2a4a, #1a1a2e);
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80%;
+            overflow-y: auto;
+            border: 3px solid #ff6b9d;
+            box-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #4bc0c8;
+        }
+        
+        .modal-title {
+            font-size: 2rem;
+            color: #ff6b9d;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            color: #ff6b9d;
+        }
+        
+        .save-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .save-slot {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid #4bc0c8;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .save-slot:hover {
+            background-color: rgba(75, 192, 200, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .save-slot-title {
+            font-weight: 600;
+            color: #ff6b9d;
+            margin-bottom: 5px;
+        }
+        
+        .save-slot-date {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        
+        .save-slot-scene {
+            font-size: 0.9rem;
+            color: #ddd;
+        }
+        
+        .save-slot.empty {
+            border-style: dashed;
+            border-color: #666;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+        }
+        
+        .save-slot.empty:hover {
+            border-color: #4bc0c8;
+        }
+        
+        .empty-slot-text {
+            color: #888;
+            font-size: 1.2rem;
+        }
+        
+        /* Settings Modal */
+        .settings-option {
+            margin-bottom: 20px;
+        }
+        
+        .settings-option label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: #ddd;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slider-value {
+            min-width: 40px;
+            text-align: center;
+            color: #ff6b9d;
+            font-weight: 600;
+        }
+        
+        input[type="range"] {
+            flex-grow: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff6b9d;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.8);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 30px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #ff6b9d;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        /* Auto Mode Indicator */
+        .auto-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(75, 192, 200, 0.8);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            z-index: 20;
+        }
+        
+        .auto-indicator.active {
+            display: flex;
+        }
+        
+        /* Quick Menu */
+        .quick-menu {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 15;
+        }
+        
+        .quick-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 2px solid #4bc0c8;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-btn:hover {
+            background-color: rgba(75, 192, 200, 0.3);
+            transform: scale(1.1);
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 10px;
+            color: #888;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                height: 95vh;
+                border-radius: 0;
+            }
+            
+            .game-title {
+                font-size: 2.5rem;
+            }
+            
+            .game-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .name-input-container {
+                width: 90%;
+                padding: 20px;
+            }
+            
+            .dialog-container {
+                min-height: 35%;
+            }
+            
+            .speaker-name {
+                font-size: 1.5rem;
+            }
+            
+            .dialog-text {
+                font-size: 1.1rem;
+                height: 80px;
+            }
+            
+            .save-slots {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Start Screen -->
+    <div id="start-screen">
+        <h1 class="game-title">Sakura Academy Chronicles</h1>
+        <p class="game-subtitle">Sebuah kisah persahabatan, cinta, dan misteri di sekolah menengah atas</p>
+        
+        <div class="name-input-container">
+            <h2>Siapa nama kamu?</h2>
+            <input type="text" class="name-input" id="player-name" placeholder="Masukkan nama kamu..." maxlength="20">
+            <button class="start-btn" id="start-game">
+                <i class="fas fa-play"></i> Mulai Petualangan
+            </button>
+        </div>
+        
+        <div class="footer">
+            Visual Novel Game - Dibuat dengan HTML, CSS, dan JavaScript
+        </div>
+    </div>
+    
+    <!-- Game Screen -->
+    <div class="container">
+        <div id="game-screen">
+            <!-- Backgrounds -->
+            <div class="background" id="bg-school"></div>
+            <div class="background" id="bg-classroom"></div>
+            <div class="background" id="bg-hallway"></div>
+            <div class="background" id="bg-rooftop"></div>
+            
+            <!-- Characters -->
+            <div class="characters-container">
+                <img class="character left" id="char-aiko" alt="Aoyama Aiko">
+                <img class="character center-left" id="char-airi" alt="Mizuno Airi">
+                <img class="character center" id="char-ayumi" alt="Mizuno Ayumi">
+                <img class="character center-right" id="char-asuka" alt="Tachibana Asuka">
+                <img class="character right" id="char-nana" alt="Hanazawa Nana">
+            </div>
+            
+            <!-- Dialog Box -->
+            <div class="dialog-container">
+                <div>
+                    <div class="speaker-name" id="speaker-name">Speaker</div>
+                    <div class="dialog-text" id="dialog-text">Dialog akan muncul di sini...</div>
+                </div>
+                
+                <div class="controls-container">
+                    <div class="main-controls">
+                        <button class="control-btn" id="prev-btn">
+                            <i class="fas fa-step-backward"></i> Sebelumnya
+                        </button>
+                        <button class="control-btn" id="next-btn">
+                            <i class="fas fa-step-forward"></i> Selanjutnya
+                        </button>
+                        <button class="control-btn" id="auto-btn">
+                            <i class="fas fa-robot"></i> Auto
+                        </button>
+                    </div>
+                    
+                    <div class="quick-menu">
+                        <button class="quick-btn" id="quick-save">
+                            <i class="fas fa-save"></i>
+                        </button>
+                        <button class="quick-btn" id="quick-load">
+                            <i class="fas fa-folder-open"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Auto Mode Indicator -->
+            <div class="auto-indicator" id="auto-indicator">
+                <i class="fas fa-robot"></i> Mode Auto Aktif
+            </div>
+            
+            <!-- Menu Buttons -->
+            <div class="save-load-menu">
+                <button class="menu-btn" id="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <button class="menu-btn" id="save-btn">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button class="menu-btn" id="load-btn">
+                    <i class="fas fa-folder-open"></i>
+                </button>
+                <button class="menu-btn" id="settings-btn">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Save Modal -->
+    <div class="modal" id="save-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Simpan Game</h2>
+                <button class="close-modal" id="close-save-modal">&times;</button>
+            </div>
+            <p>Pilih slot untuk menyimpan progress game kamu:</p>
+            <div class="save-slots" id="save-slots">
+                <!-- Save slots will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load Modal -->
+    <div class="modal" id="load-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Muat Game</h2>
+                <button class="close-modal" id="close-load-modal">&times;</button>
+            </div>
+            <p>Pilih slot untuk memuat game yang telah disimpan:</p>
+            <div class="save-slots" id="load-slots">
+                <!-- Load slots will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Pengaturan</h2>
+                <button class="close-modal" id="close-settings-modal">&times;</button>
+            </div>
+            
+            <div class="settings-option">
+                <label for="text-speed">Kecepatan Teks</label>
+                <div class="slider-container">
+                    <span class="slider-value" id="text-speed-value">50</span>
+                    <input type="range" id="text-speed" min="10" max="100" value="50">
+                    <span>Lambat</span>
+                    <span>Cepat</span>
+                </div>
+            </div>
+            
+            <div class="settings-option">
+                <label for="auto-speed">Kecepatan Auto</label>
+                <div class="slider-container">
+                    <span class="slider-value" id="auto-speed-value">3</span>
+                    <input type="range" id="auto-speed" min="1" max="10" value="3">
+                    <span>Lambat</span>
+                    <span>Cepat</span>
+                </div>
+            </div>
+            
+            <div class="settings-option">
+                <label for="bgm-volume">Volume Musik Latar</label>
+                <div class="slider-container">
+                    <span class="slider-value" id="bgm-volume-value">70</span>
+                    <input type="range" id="bgm-volume" min="0" max="100" value="70">
+                    <span>Pelankan</span>
+                    <span>Keras</span>
+                </div>
+            </div>
+            
+            <div class="settings-option">
+                <label>Nama Pemain</label>
+                <input type="text" class="name-input" id="settings-player-name" placeholder="Masukkan nama kamu..." maxlength="20" style="width: 100%; margin-top: 8px;">
+            </div>
+            
+            <div class="settings-option">
+                <label>Mode Malam</label>
+                <div class="slider-container">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="night-mode">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>Hidupkan untuk mengurangi ketegangan mata</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; display: flex; gap: 15px;">
+                <button class="control-btn" id="reset-settings">
+                    <i class="fas fa-undo"></i> Reset Pengaturan
+                </button>
+                <button class="control-btn" id="apply-settings">
+                    <i class="fas fa-check"></i> Terapkan
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Menu Modal -->
+    <div class="modal" id="menu-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Menu Utama</h2>
+                <button class="close-modal" id="close-menu-modal">&times;</button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 20px;">
+                <button class="control-btn" style="justify-content: center; padding: 20px; font-size: 1.3rem;">
+                    <i class="fas fa-home"></i> Kembali ke Menu Utama
+                </button>
+                
+                <button class="control-btn" style="justify-content: center; padding: 20px; font-size: 1.3rem;">
+                    <i class="fas fa-book"></i> Buka Jurnal Cerita
+                </button>
+                
+                <button class="control-btn" style="justify-content: center; padding: 20px; font-size: 1.3rem;">
+                    <i class="fas fa-images"></i> Galeri Gambar
+                </button>
+                
+                <button class="control-btn" style="justify-content: center; padding: 20px; font-size: 1.3rem;">
+                    <i class="fas fa-music"></i> Musik & Suara
+                </button>
+                
+                <button class="control-btn" style="justify-content: center; padding: 20px; font-size: 1.3rem;">
+                    <i class="fas fa-question-circle"></i> Bantuan & Cara Bermain
+                </button>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        // Game Data
+        const gameData = {
+            playerName: "",
+            currentScene: 0,
+            autoMode: false,
+            textSpeed: 50,
+            autoSpeed: 3,
+            bgmVolume: 70,
+            nightMode: false,
+            saves: {}
+        };
+
+        // Character Images
+        const characterImages = {
+            aiko: "https://raw.githubusercontent.com/YanaMiku/novel-game/main/img/aoyama-aiko.png",
+            airi: "https://raw.githubusercontent.com/YanaMiku/novel-game/main/img/mizuno-airi.png",
+            ayumi: "https://raw.githubusercontent.com/YanaMiku/novel-game/main/img/mizuno-ayumi.png",
+            asuka: "https://raw.githubusercontent.com/YanaMiku/novel-game/main/img/tachibana-asuka.png",
+            nana: "https://raw.githubusercontent.com/YanaMiku/novel-game/main/img/hanazawa-nana.png"
+        };
+
+        // Background Images
+        const backgroundImages = {
+            school: "https://raw.githubusercontent.com/YanaMiku/novel-game/main/img/background-school.png",
+            classroom: "https://raw.githubusercontent.com/YanaMiku/novel-game/main/img/background-school.png",
+            hallway: "https://raw.githubusercontent.com/YanaMiku/novel-game/main/img/background-school.png",
+            rooftop: "https://raw.githubusercontent.com/YanaMiku/novel-game/main/img/background-school.png"
+        };
+
+        // Story Data
+        const story = [
+            // Scene 0: Introduction
+            {
+                background: "school",
+                characters: [],
+                speaker: "Narator",
+                text: "Hari pertama di SMA Sakura. Kamu, {player}, adalah siswa transfer baru yang datang di tengah semester. Dengan jantung berdebar, kamu melangkah masuk ke gerbang sekolah yang megah ini."
+            },
+            // Scene 1: Meeting Aiko
+            {
+                background: "school",
+                characters: [
+                    {id: "aiko", position: "center", expression: "normal"}
+                ],
+                speaker: "Aoyama Aiko",
+                text: "Hai! Kamu siswa transfer baru, kan? Namaku Aoyama Aiko. Aku ditugaskan untuk membawamu berkeliling sekolah hari ini. Senang bertemu denganmu, {player}!"
+            },
+            // Scene 2: Aiko's Introduction
+            {
+                background: "school",
+                characters: [
+                    {id: "aiko", position: "center", expression: "smile"}
+                ],
+                speaker: "{player}",
+                text: "Senang bertemu denganmu juga, Aiko. Aku sedikit gugup hari ini, jadi terima kasih sudah menemaniku."
+            },
+            // Scene 3: Heading to Classroom
+            {
+                background: "hallway",
+                characters: [
+                    {id: "aiko", position: "center-left", expression: "normal"}
+                ],
+                speaker: "Aoyama Aiko",
+                text: "Jangan khawatir! Semua orang di sini sangat ramah. Ayo, kita pergi ke kelas dulu. Kelas kita adalah 2-B, dan wali kelas kita adalah Hanazawa-sensei."
+            },
+            // Scene 4: Meeting the Class
+            {
+                background: "classroom",
+                characters: [
+                    {id: "aiko", position: "left", expression: "smile"},
+                    {id: "airi", position: "center-right", expression: "normal"},
+                    {id: "ayumi", position: "right", expression: "smile"}
+                ],
+                speaker: "Narator",
+                text: "Kamu memasuki kelas 2-B bersama Aiko. Semua mata tertuju padamu saat kamu diperkenalkan oleh Aiko kepada teman-teman sekelas."
+            },
+            // Scene 5: Meeting the Mizuno Twins
+            {
+                background: "classroom",
+                characters: [
+                    {id: "aiko", position: "left", expression: "smile"},
+                    {id: "airi", position: "center", expression: "normal"},
+                    {id: "ayumi", position: "right", expression: "excited"}
+                ],
+                speaker: "Mizuno Ayumi",
+                text: "Hai! Namaku Mizuno Ayumi, dan ini kembaranku, Airi! Selamat datang di kelas 2-B! Aku yakin kita akan menjadi teman baik!"
+            },
+            // Scene 6: Airi's Introduction
+            {
+                background: "classroom",
+                characters: [
+                    {id: "aiko", position: "left", expression: "normal"},
+                    {id: "airi", position: "center", expression: "shy"},
+                    {id: "ayumi", position: "right", expression: "smile"}
+                ],
+                speaker: "Mizuno Airi",
+                text: "...H-hai. Senang bertemu denganmu, {player}."
+            },
+            // Scene 7: Teacher Arrives
+            {
+                background: "classroom",
+                characters: [
+                    {id: "nana", position: "center", expression: "normal"},
+                    {id: "aiko", position: "left", expression: "normal"},
+                    {id: "airi", position: "center-right", expression: "normal"},
+                    {id: "ayumi", position: "right", expression: "normal"}
+                ],
+                speaker: "Hanazawa Nana",
+                text: "Selamat pagi, anak-anak! Oh, kamu pasti {player}, siswa transfer baru. Selamat datang di SMA Sakura. Aku Hanazawa Nana, wali kelas kalian."
+            },
+            // Scene 8: Student Council President
+            {
+                background: "hallway",
+                characters: [
+                    {id: "asuka", position: "center", expression: "serious"},
+                    {id: "aiko", position: "left", expression: "normal"}
+                ],
+                speaker: "Narator",
+                text: "Setelah pelajaran selesai, Aiko mengajakmu ke kantor OSIS untuk memperkenalkanmu kepada ketua OSIS, Tachibana Asuka."
+            },
+            // Scene 9: Meeting Asuka
+            {
+                background: "hallway",
+                characters: [
+                    {id: "asuka", position: "center", expression: "normal"},
+                    {id: "aiko", position: "left", expression: "smile"}
+                ],
+                speaker: "Tachibana Asuka",
+                text: "Jadi kamu {player}. Aku Tachibana Asuka, ketua OSIS SMA Sakura. Aku dengar kamu siswa transfer. Pastikan untuk mematuhi semua peraturan sekolah, ya."
+            },
+            // Scene 10: Lunch Break
+            {
+                background: "rooftop",
+                characters: [
+                    {id: "aiko", position: "center-left", expression: "smile"},
+                    {id: "airi", position: "center", expression: "normal"},
+                    {id: "ayumi", position: "center-right", expression: "excited"}
+                ],
+                speaker: "Mizuno Ayumi",
+                text: "Yay! Waktu makan siang! {player}, mau makan bersama kami di atap? Pemandangannya keren dari sini!"
+            },
+            // Scene 11: Decision Point
+            {
+                background: "rooftop",
+                characters: [
+                    {id: "aiko", position: "left", expression: "smile"},
+                    {id: "airi", position: "center-left", expression: "shy"},
+                    {id: "ayumi", position: "center-right", expression: "excited"},
+                    {id: "asuka", position: "right", expression: "normal"}
+                ],
+                speaker: "Narator",
+                text: "Hari pertama di SMA Sakura telah berlalu. Kamu telah bertemu dengan banyak orang menarik. Siapa yang akan menjadi teman dekatmu? Petualangan barumu baru saja dimulai..."
+            }
+        ];
+
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const playerNameInput = document.getElementById('player-name');
+        const startGameBtn = document.getElementById('start-game');
+        const speakerName = document.getElementById('speaker-name');
+        const dialogText = document.getElementById('dialog-text');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const autoBtn = document.getElementById('auto-btn');
+        const autoIndicator = document.getElementById('auto-indicator');
+        const saveBtn = document.getElementById('save-btn');
+        const loadBtn = document.getElementById('load-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const menuBtn = document.getElementById('menu-btn');
+        const quickSaveBtn = document.getElementById('quick-save');
+        const quickLoadBtn = document.getElementById('quick-load');
+        
+        // Modals
+        const saveModal = document.getElementById('save-modal');
+        const loadModal = document.getElementById('load-modal');
+        const settingsModal = document.getElementById('settings-modal');
+        const menuModal = document.getElementById('menu-modal');
+        
+        // Close modal buttons
+        document.getElementById('close-save-modal').addEventListener('click', () => hideModal(saveModal));
+        document.getElementById('close-load-modal').addEventListener('click', () => hideModal(loadModal));
+        document.getElementById('close-settings-modal').addEventListener('click', () => hideModal(settingsModal));
+        document.getElementById('close-menu-modal').addEventListener('click', () => hideModal(menuModal));
+        
+        // Settings elements
+        const textSpeedSlider = document.getElementById('text-speed');
+        const textSpeedValue = document.getElementById('text-speed-value');
+        const autoSpeedSlider = document.getElementById('auto-speed');
+        const autoSpeedValue = document.getElementById('auto-speed-value');
+        const bgmVolumeSlider = document.getElementById('bgm-volume');
+        const bgmVolumeValue = document.getElementById('bgm-volume-value');
+        const settingsPlayerName = document.getElementById('settings-player-name');
+        const nightModeToggle = document.getElementById('night-mode');
+        const resetSettingsBtn = document.getElementById('reset-settings');
+        const applySettingsBtn = document.getElementById('apply-settings');
+
+        // Initialize game
+        function initGame() {
+            // Load game data from localStorage
+            const savedData = localStorage.getItem('sakuraAcademyChronicles');
+            if (savedData) {
+                const loadedData = JSON.parse(savedData);
+                Object.assign(gameData, loadedData);
+            }
+            
+            // Apply settings
+            textSpeedSlider.value = gameData.textSpeed;
+            textSpeedValue.textContent = gameData.textSpeed;
+            autoSpeedSlider.value = gameData.autoSpeed;
+            autoSpeedValue.textContent = gameData.autoSpeed;
+            bgmVolumeSlider.value = gameData.bgmVolume;
+            bgmVolumeValue.textContent = gameData.bgmVolume;
+            nightModeToggle.checked = gameData.nightMode;
+            settingsPlayerName.value = gameData.playerName;
+            
+            // Setup event listeners
+            startGameBtn.addEventListener('click', startGame);
+            playerNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') startGame();
+            });
+            
+            // Game controls
+            prevBtn.addEventListener('click', prevScene);
+            nextBtn.addEventListener('click', nextScene);
+            autoBtn.addEventListener('click', toggleAutoMode);
+            
+            // Menu buttons
+            saveBtn.addEventListener('click', () => showModal(saveModal));
+            loadBtn.addEventListener('click', () => {
+                updateLoadSlots();
+                showModal(loadModal);
+            });
+            settingsBtn.addEventListener('click', () => showModal(settingsModal));
+            menuBtn.addEventListener('click', () => showModal(menuModal));
+            quickSaveBtn.addEventListener('click', quickSave);
+            quickLoadBtn.addEventListener('click', quickLoad);
+            
+            // Settings
+            textSpeedSlider.addEventListener('input', () => {
+                textSpeedValue.textContent = textSpeedSlider.value;
+            });
+            
+            autoSpeedSlider.addEventListener('input', () => {
+                autoSpeedValue.textContent = autoSpeedSlider.value;
+            });
+            
+            bgmVolumeSlider.addEventListener('input', () => {
+                bgmVolumeValue.textContent = bgmVolumeSlider.value;
+            });
+            
+            resetSettingsBtn.addEventListener('click', resetSettings);
+            applySettingsBtn.addEventListener('click', applySettings);
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    hideModal(e.target);
+                }
+            });
+            
+            // Initialize save/load slots
+            initializeSaveSlots();
+        }
+
+        // Start the game
+        function startGame() {
+            const name = playerNameInput.value.trim();
+            if (!name) {
+                alert("Harap masukkan nama kamu terlebih dahulu!");
+                playerNameInput.focus();
+                return;
+            }
+            
+            gameData.playerName = name;
+            settingsPlayerName.value = name;
+            
+            // Hide start screen, show game screen
+            startScreen.style.opacity = '0';
+            setTimeout(() => {
+                startScreen.style.display = 'none';
+                gameScreen.style.display = 'flex';
+                displayScene(gameData.currentScene);
+            }, 500);
+            
+            // Save player name
+            saveGameData();
+        }
+
+        // Display a scene
+        function displayScene(sceneIndex) {
+            if (sceneIndex < 0 || sceneIndex >= story.length) return;
+            
+            const scene = story[sceneIndex];
+            gameData.currentScene = sceneIndex;
+            
+            // Update background
+            document.querySelectorAll('.background').forEach(bg => {
+                bg.classList.remove('active');
+                if (bg.id === `bg-${scene.background}`) {
+                    bg.style.backgroundImage = `url('${backgroundImages[scene.background]}')`;
+                    bg.classList.add('active');
+                }
+            });
+            
+            // Update characters
+            document.querySelectorAll('.character').forEach(char => {
+                char.classList.remove('active');
+                char.style.opacity = '0';
+            });
+            
+            scene.characters.forEach(char => {
+                const charElement = document.getElementById(`char-${char.id}`);
+                if (charElement) {
+                    charElement.src = characterImages[char.id];
+                    charElement.classList.add('active');
+                    charElement.classList.add(char.position);
+                    charElement.style.opacity = '1';
+                }
+            });
+            
+            // Update dialog
+            let speakerText = scene.speaker;
+            let dialogTextContent = scene.text;
+            
+            // Replace {player} with player name
+            if (speakerText.includes('{player}')) {
+                speakerText = speakerText.replace('{player}', gameData.playerName);
+            }
+            if (dialogTextContent.includes('{player}')) {
+                dialogTextContent = dialogTextContent.replace(/{player}/g, gameData.playerName);
+            }
+            
+            speakerName.textContent = speakerText;
+            
+            // Typewriter effect for dialog
+            typeWriterEffect(dialogText, dialogTextContent, gameData.textSpeed);
+            
+            // Update buttons state
+            prevBtn.disabled = sceneIndex === 0;
+            nextBtn.disabled = sceneIndex === story.length - 1;
+            
+            // Save progress
+            saveGameData();
+        }
+
+        // Typewriter effect for dialog
+        function typeWriterEffect(element, text, speed) {
+            element.textContent = '';
+            let i = 0;
+            
+            const typeInterval = setInterval(() => {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typeInterval);
+                }
+            }, 100 - speed);
+            
+            // Store the interval so we can clear it if needed
+            element.dataset.typeInterval = typeInterval;
+        }
+
+        // Next scene
+        function nextScene() {
+            if (gameData.currentScene < story.length - 1) {
+                displayScene(gameData.currentScene + 1);
+            }
+        }
+
+        // Previous scene
+        function prevScene() {
+            if (gameData.currentScene > 0) {
+                displayScene(gameData.currentScene - 1);
+            }
+        }
+
+        // Toggle auto mode
+        function toggleAutoMode() {
+            gameData.autoMode = !gameData.autoMode;
+            
+            if (gameData.autoMode) {
+                autoBtn.innerHTML = '<i class="fas fa-pause"></i> Jeda';
+                autoIndicator.classList.add('active');
+                
+                // Start auto advance
+                const autoInterval = setInterval(() => {
+                    if (gameData.autoMode && gameData.currentScene < story.length - 1) {
+                        nextScene();
+                    } else {
+                        toggleAutoMode();
+                    }
+                }, gameData.autoSpeed * 1000);
+                
+                // Store interval ID
+                autoBtn.dataset.autoInterval = autoInterval;
+            } else {
+                autoBtn.innerHTML = '<i class="fas fa-robot"></i> Auto';
+                autoIndicator.classList.remove('active');
+                
+                // Clear auto advance interval
+                if (autoBtn.dataset.autoInterval) {
+                    clearInterval(parseInt(autoBtn.dataset.autoInterval));
+                    delete autoBtn.dataset.autoInterval;
+                }
+            }
+        }
+
+        // Show modal
+        function showModal(modal) {
+            modal.classList.add('active');
+            
+            if (modal === saveModal) {
+                updateSaveSlots();
+            }
+        }
+
+        // Hide modal
+        function hideModal(modal) {
+            modal.classList.remove('active');
+        }
+
+        // Initialize save slots
+        function initializeSaveSlots() {
+            // Create 6 save slots
+            for (let i = 1; i <= 6; i++) {
+                if (!gameData.saves[i]) {
+                    gameData.saves[i] = null;
+                }
+            }
+            
+            updateSaveSlots();
+            updateLoadSlots();
+        }
+
+        // Update save slots display
+        function updateSaveSlots() {
+            const saveSlotsContainer = document.getElementById('save-slots');
+            saveSlotsContainer.innerHTML = '';
+            
+            for (let i = 1; i <= 6; i++) {
+                const save = gameData.saves[i];
+                const saveSlot = document.createElement('div');
+                saveSlot.className = 'save-slot';
+                
+                if (save) {
+                    const saveDate = new Date(save.timestamp);
+                    saveSlot.innerHTML = `
+                        <div class="save-slot-title">Slot ${i}</div>
+                        <div class="save-slot-date">${saveDate.toLocaleString()}</div>
+                        <div class="save-slot-scene">Scene: ${save.currentScene + 1} / ${story.length}</div>
+                        <div class="save-slot-scene">Pemain: ${save.playerName}</div>
+                    `;
+                    saveSlot.addEventListener('click', () => saveGame(i));
+                } else {
+                    saveSlot.className = 'save-slot empty';
+                    saveSlot.innerHTML = `
+                        <div class="empty-slot-text">Slot ${i} Kosong</div>
+                    `;
+                }
+                
+                saveSlot.addEventListener('click', () => saveGame(i));
+                saveSlotsContainer.appendChild(saveSlot);
+            }
+        }
+
+        // Update load slots display
+        function updateLoadSlots() {
+            const loadSlotsContainer = document.getElementById('load-slots');
+            loadSlotsContainer.innerHTML = '';
+            
+            for (let i = 1; i <= 6; i++) {
+                const save = gameData.saves[i];
+                const saveSlot = document.createElement('div');
+                saveSlot.className = 'save-slot';
+                
+                if (save) {
+                    const saveDate = new Date(save.timestamp);
+                    saveSlot.innerHTML = `
+                        <div class="save-slot-title">Slot ${i}</div>
+                        <div class="save-slot-date">${saveDate.toLocaleString()}</div>
+                        <div class="save-slot-scene">Scene: ${save.currentScene + 1} / ${story.length}</div>
+                        <div class="save-slot-scene">Pemain: ${save.playerName}</div>
+                    `;
+                    saveSlot.addEventListener('click', () => loadGame(i));
+                } else {
+                    saveSlot.className = 'save-slot empty';
+                    saveSlot.innerHTML = `
+                        <div class="empty-slot-text">Slot ${i} Kosong</div>
+                    `;
+                    saveSlot.addEventListener('click', () => {
+                        alert('Slot ini kosong. Tidak ada data yang bisa dimuat.');
+                    });
+                }
+                
+                loadSlotsContainer.appendChild(saveSlot);
+            }
+        }
+
+        // Save game to a slot
+        function saveGame(slot) {
+            const saveData = {
+                playerName: gameData.playerName,
+                currentScene: gameData.currentScene,
+                timestamp: Date.now(),
+                textSpeed: gameData.textSpeed,
+                autoSpeed: gameData.autoSpeed,
+                bgmVolume: gameData.bgmVolume,
+                nightMode: gameData.nightMode
+            };
+            
+            gameData.saves[slot] = saveData;
+            saveGameData();
+            updateSaveSlots();
+            updateLoadSlots();
+            
+            alert(`Game berhasil disimpan di slot ${slot}!`);
+            hideModal(saveModal);
+        }
+
+        // Load game from a slot
+        function loadGame(slot) {
+            const save = gameData.saves[slot];
+            
+            if (!save) {
+                alert('Tidak ada data yang tersimpan di slot ini.');
+                return;
+            }
+            
+            // Confirm load
+            if (!confirm(`Muat game dari slot ${slot}? Progress saat ini akan hilang.`)) {
+                return;
+            }
+            
+            // Apply save data
+            gameData.playerName = save.playerName;
+            gameData.currentScene = save.currentScene;
+            gameData.textSpeed = save.textSpeed;
+            gameData.autoSpeed = save.autoSpeed;
+            gameData.bgmVolume = save.bgmVolume;
+            gameData.nightMode = save.nightMode;
+            
+            // Update settings UI
+            textSpeedSlider.value = gameData.textSpeed;
+            textSpeedValue.textContent = gameData.textSpeed;
+            autoSpeedSlider.value = gameData.autoSpeed;
+            autoSpeedValue.textContent = gameData.autoSpeed;
+            bgmVolumeSlider.value = gameData.bgmVolume;
+            bgmVolumeValue.textContent = gameData.bgmVolume;
+            nightModeToggle.checked = gameData.nightMode;
+            settingsPlayerName.value = gameData.playerName;
+            
+            // Display loaded scene
+            displayScene(gameData.currentScene);
+            
+            alert(`Game berhasil dimuat dari slot ${slot}!`);
+            hideModal(loadModal);
+        }
+
+        // Quick save (to slot 1)
+        function quickSave() {
+            saveGame(1);
+        }
+
+        // Quick load (from slot 1)
+        function quickLoad() {
+            loadGame(1);
+        }
+
+        // Save game data to localStorage
+        function saveGameData() {
+            localStorage.setItem('sakuraAcademyChronicles', JSON.stringify(gameData));
+        }
+
+        // Reset settings to default
+        function resetSettings() {
+            if (confirm('Reset semua pengaturan ke nilai default?')) {
+                gameData.textSpeed = 50;
+                gameData.autoSpeed = 3;
+                gameData.bgmVolume = 70;
+                gameData.nightMode = false;
+                
+                textSpeedSlider.value = gameData.textSpeed;
+                textSpeedValue.textContent = gameData.textSpeed;
+                autoSpeedSlider.value = gameData.autoSpeed;
+                autoSpeedValue.textContent = gameData.autoSpeed;
+                bgmVolumeSlider.value = gameData.bgmVolume;
+                bgmVolumeValue.textContent = gameData.bgmVolume;
+                nightModeToggle.checked = gameData.nightMode;
+                
+                alert('Pengaturan telah direset ke default.');
+            }
+        }
+
+        // Apply settings
+        function applySettings() {
+            const newName = settingsPlayerName.value.trim();
+            if (newName) {
+                gameData.playerName = newName;
+                // Update current scene if game is active
+                if (gameScreen.style.display === 'flex') {
+                    displayScene(gameData.currentScene);
+                }
+            }
+            
+            gameData.textSpeed = parseInt(textSpeedSlider.value);
+            gameData.autoSpeed = parseInt(autoSpeedSlider.value);
+            gameData.bgmVolume = parseInt(bgmVolumeSlider.value);
+            gameData.nightMode = nightModeToggle.checked;
+            
+            // Apply night mode
+            if (gameData.nightMode) {
+                document.body.style.backgroundColor = '#0a0a1a';
+                document.querySelector('.container').style.boxShadow = '0 0 30px rgba(100, 100, 255, 0.3)';
+            } else {
+                document.body.style.backgroundColor = '#1a1a2e';
+                document.querySelector('.container').style.boxShadow = '0 0 30px rgba(0, 0, 0, 0.7)';
+            }
+            
+            saveGameData();
+            alert('Pengaturan telah diterapkan!');
+            hideModal(settingsModal);
+        }
+
+        // Initialize the game when page loads
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
